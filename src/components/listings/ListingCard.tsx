@@ -6,10 +6,17 @@ import { Listing } from '@/types'
 import { formatPrice, cn } from '@/lib/utils'
 import { useWishlist } from '@/context/WishlistContext'
 import { useToast } from '@/context/ToastContext'
+import { hasPricing } from '@/config/categories'
 
 const categoryEmoji: Record<string, string> = {
-  cars: '🚗', stays: '🏨', activities: '🎭',
-  events: '📅', services: '🛎️', products: '🛍️',
+  hotels: '🏨',
+  foods: '🍽️',
+  shortlets: '🏠',
+  services: '🛠️',
+  health: '⚕️',
+  shops: '🛍️',
+  'local-market': '🧺',
+  events: '🎉',
 }
 
 interface ListingCardProps {
@@ -21,6 +28,7 @@ export default function ListingCard({ listing, className }: ListingCardProps) {
   const { isSaved, toggle } = useWishlist()
   const { toast } = useToast()
   const saved = isSaved(listing.id)
+  const showPrice = hasPricing(listing.category)
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -33,7 +41,7 @@ export default function ListingCard({ listing, className }: ListingCardProps) {
     <div className={cn('bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover group', className)}>
       {/* Image */}
       <Link href={`/listing/${listing.id}`}>
-        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 img-zoom overflow-hidden cursor-pointer">
+        <div className="relative h-[160px] bg-gradient-to-br from-gray-100 to-gray-200 img-zoom overflow-hidden cursor-pointer">
           <div className="absolute inset-0 flex items-center justify-center text-6xl select-none transition-transform duration-300 group-hover:scale-105">
             {categoryEmoji[listing.category] ?? '📦'}
           </div>
@@ -63,9 +71,9 @@ export default function ListingCard({ listing, className }: ListingCardProps) {
       </Link>
 
       {/* Body */}
-      <Link href={`/listing/${listing.id}`} className="block p-4 cursor-pointer">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <Star size={13} className="text-[#F4C300] fill-[#F4C300]" />
+      <Link href={`/listing/${listing.id}`} className="block p-3 cursor-pointer">
+        <div className="flex items-center gap-1.5 mb-1">
+          <Star size={12} className="text-[#F4C300] fill-[#F4C300]" />
           <span className="text-sm font-bold text-gray-800">{listing.rating}</span>
           <span className="text-xs text-gray-400">({listing.reviewCount})</span>
         </div>
@@ -75,29 +83,24 @@ export default function ListingCard({ listing, className }: ListingCardProps) {
         </h3>
 
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
-          <MapPin size={12} className="flex-shrink-0" />
+          <MapPin size={11} className="flex-shrink-0" />
           <span className="truncate">{listing.location}</span>
         </div>
 
-        {listing.specs && (
-          <div className="flex gap-1.5 flex-wrap mb-3">
-            {Object.values(listing.specs).slice(0, 3).map((val, i) => (
-              <span key={i} className="text-[11px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                {val}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          <div>
-            <span className="text-lg font-extrabold text-gray-900">{formatPrice(listing.price)}</span>
+        {showPrice ? (
+          <div className="pt-2.5 border-t border-gray-50">
+            <span className="text-xs text-gray-400">From </span>
+            <span className="text-base font-extrabold text-gray-900">{formatPrice(listing.price)}</span>
+            {listing.priceMax && (
+              <span className="text-xs text-gray-400"> – {formatPrice(listing.priceMax)}</span>
+            )}
             <span className="text-xs text-gray-400 ml-1">{listing.priceUnit}</span>
           </div>
-          <span className="px-4 py-2 text-xs font-bold text-[#005F56] border border-[#005F56]/30 rounded-xl hover:bg-[#005F56] hover:text-white transition-all">
-            View Details
-          </span>
-        </div>
+        ) : (
+          <div className="pt-2.5 border-t border-gray-50">
+            <span className="text-xs font-semibold text-[#005F56]">Chat for details →</span>
+          </div>
+        )}
       </Link>
     </div>
   )

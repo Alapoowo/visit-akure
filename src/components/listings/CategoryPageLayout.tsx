@@ -54,12 +54,14 @@ export default function CategoryPageLayout({
       </div>
 
       {/* Content */}
-      <div className="max-w-[1280px] mx-auto px-6 py-8">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {listings.length === 0 ? (
           <EmptyState type="listings" />
         ) : showSidebar ? (
-          <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
-            <SidebarFilters category={category} />
+          <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 lg:gap-8">
+            <div className="hidden lg:block">
+              <SidebarFilters category={category} />
+            </div>
             <div>
               <div className="flex items-center justify-between mb-5">
                 <p className="text-sm text-gray-500">
@@ -73,17 +75,17 @@ export default function CategoryPageLayout({
                   <option>Newest First</option>
                 </select>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5">
                 {listings.map(l => <ListingCard key={l.id} listing={l} />)}
               </div>
             </div>
           </div>
         ) : (
           <div>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 mb-5">
               <span className="font-bold text-gray-800">{listings.length}</span> {category} found
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {listings.map(l => <ListingCard key={l.id} listing={l} />)}
             </div>
           </div>

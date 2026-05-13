@@ -49,23 +49,23 @@ export default function SavedPage() {
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-5">
           <div className="text-center p-6 bg-white rounded-2xl border border-gray-100">
             <div className="text-3xl mb-3">🏨</div>
-            <div className="font-bold text-sm mb-1">Browse Stays</div>
-            <Link href="/stays" className="text-xs text-[#005F56] font-semibold hover:underline">
-              Find hotels &amp; apartments →
+            <div className="font-bold text-sm mb-1">Browse Hotels</div>
+            <Link href="/hotels" className="text-xs text-[#005F56] font-semibold hover:underline">
+              Find hotels &amp; suites →
             </Link>
           </div>
           <div className="text-center p-6 bg-white rounded-2xl border border-gray-100">
-            <div className="text-3xl mb-3">🚗</div>
-            <div className="font-bold text-sm mb-1">Rent a Car</div>
-            <Link href="/cars" className="text-xs text-[#005F56] font-semibold hover:underline">
-              Browse car rentals →
+            <div className="text-3xl mb-3">🍽️</div>
+            <div className="font-bold text-sm mb-1">Find Food</div>
+            <Link href="/foods" className="text-xs text-[#005F56] font-semibold hover:underline">
+              Browse restaurants →
             </Link>
           </div>
           <div className="text-center p-6 bg-white rounded-2xl border border-gray-100">
-            <div className="text-3xl mb-3">🎭</div>
-            <div className="font-bold text-sm mb-1">Book Activities</div>
-            <Link href="/activities" className="text-xs text-[#005F56] font-semibold hover:underline">
-              Explore activities →
+            <div className="text-3xl mb-3">🏠</div>
+            <div className="font-bold text-sm mb-1">Shortlets</div>
+            <Link href="/shortlets" className="text-xs text-[#005F56] font-semibold hover:underline">
+              Explore shortlets →
             </Link>
           </div>
         </div>

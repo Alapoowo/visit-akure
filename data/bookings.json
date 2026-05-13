@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1778421819755",
+    "listingId": "s4",
+    "listingTitle": "Arakale Luxury Suites",
+    "listingCategory": "stays",
+    "vendorWhatsapp": "2348001234567",
+    "customerName": "HonneyMade Technologies",
+    "customerPhone": "123456789",
+    "customerEmail": "honneymade@gmail.com",
+    "checkIn": "2026-05-10",
+    "checkOut": "2026-05-13",
+    "days": 3,
+    "pricePerUnit": 75000,
+    "serviceFee": 15000,
+    "total": 240000,
+    "message": "Testing",
+    "createdAt": "2026-05-10T14:03:39.755Z"
+  },
+  {
+    "id": "1778423121181",
+    "listingId": "s4",
+    "listingTitle": "Arakale Luxury Suites",
+    "listingCategory": "stays",
+    "vendorWhatsapp": "2348001234567",
+    "customerName": "HonneyMade Technologies",
+    "customerPhone": "123456789",
+    "customerEmail": "honneymade@gmail.com",
+    "checkIn": "2026-05-10",
+    "checkOut": "2026-05-13",
+    "days": 3,
+    "pricePerUnit": 75000,
+    "serviceFee": 15000,
+    "total": 240000,
+    "message": "Testing",
+    "createdAt": "2026-05-10T14:25:21.181Z"
+  }
+]

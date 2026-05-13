@@ -2,46 +2,180 @@
 
 import { useState } from 'react'
 import {
-  Building2, MapPin, Phone, FileText, Image, Check,
-  ArrowRight, ArrowLeft, BadgeCheck, Star, Crown, Upload, ChevronRight
+  Building2, MapPin, Phone, FileText, Check,
+  ArrowRight, ArrowLeft, BadgeCheck, Star, Crown, ChevronRight, Mail, Globe, User, Upload, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// ─── Step config ─────────────────────────────────────────────────────────────
 const steps = [
   { n: 1, label: 'Business Info' },
-  { n: 2, label: 'Choose Plan' },
-  { n: 3, label: 'Review' },
-  { n: 4, label: 'Submit' },
+  { n: 2, label: 'Features' },
+  { n: 3, label: 'Choose Plan' },
+  { n: 4, label: 'Review' },
 ]
 
+// ─── Plans ────────────────────────────────────────────────────────────────────
 const plans = [
   {
-    id: 'basic', label: 'Basic', badge: 'Free Forever', icon: BadgeCheck,
-    price: '₦0', period: '/month', color: 'border-gray-200',
-    features: ['1 active listing', 'WhatsApp CTA button', 'Basic analytics', 'Standard placement'],
+    id: 'basic', label: 'Basic Listing', icon: BadgeCheck,
+    price: 'Free', period: '',
+    color: 'border-gray-200',
+    desc: 'Create your business profile on Visit Akure with photos, contact details, and search visibility.',
+    features: ['Business profile', 'Photos & contact details', 'Search visibility', 'WhatsApp CTA button'],
   },
   {
-    id: 'verified', label: 'Verified', badge: '⭐ Most Popular', icon: Star,
-    price: '₦5,000', period: '/month', color: 'border-[#005F56]', popular: true,
-    features: ['3 active listings', 'Verified badge', 'Priority placement', 'Advanced analytics', 'Photo gallery (10 photos)'],
+    id: 'verified', label: 'Verified Listing', icon: Star,
+    price: '₦5,000', period: '',
+    color: 'border-[#005F56]', popular: true,
+    desc: 'Get a verified badge, better visibility, and increased customer trust. Includes everything in Basic Listing.',
+    features: ['Everything in Basic', 'Verified badge ✓', 'Better placement', 'Increased customer trust'],
   },
   {
-    id: 'featured', label: 'Featured', badge: '🏆 Best Value', icon: Crown,
-    price: '₦15,000', period: '/month', color: 'border-[#F4C300]',
-    features: ['Unlimited listings', 'Featured on homepage', 'Top search results', 'Unlimited photos', 'WhatsApp lead analytics', 'Priority 24/7 support'],
+    id: 'featured', label: 'Featured Listing', icon: Crown,
+    price: '₦20,000', period: '/per month',
+    color: 'border-[#F4C300]',
+    desc: 'Boost your business with featured placement, priority visibility, and promotional exposure across Visit Akure. Includes everything in Verified Listing.',
+    features: ['Everything in Verified', 'Featured placement', 'Priority visibility', 'Promotional exposure'],
   },
 ]
 
+// ─── Category features ────────────────────────────────────────────────────────
+const CATEGORY_FEATURES: Record<string, string[]> = {
+  hotels: ['WiFi', 'Swimming Pool', 'Gym', 'Restaurant', 'Bar', 'Parking', 'Air Conditioning', 'Room Service', 'Laundry', 'Conference Room', '24/7 Security', 'CCTV', 'Spa'],
+  foods: ['Dine-in', 'Takeout', 'Home Delivery', 'Outdoor Seating', 'WiFi', 'Parking', 'Air Conditioning', 'Bar', 'Private Events', 'Reservations', 'Kids Menu'],
+  shortlets: ['WiFi', 'Generator', 'Water Supply', 'Air Conditioning', 'Fully Equipped Kitchen', 'Parking', 'Security', 'Swimming Pool', 'Gym', 'Laundry', 'CCTV', 'Smart TV', 'Netflix'],
+  services: ['Home Service', 'Walk-in', 'Online Booking', 'Free Consultation', 'Emergency Service', 'Weekend Service', 'Mobile Service', 'Corporate Packages'],
+  health: ['Walk-in', 'Appointment Only', 'Emergency Service', 'Health Insurance Accepted', 'Ambulance Service', 'Lab Tests', 'X-Ray', 'Pharmacy', '24/7 Service', 'Specialist Doctors'],
+  shops: ['Home Delivery', 'In-Store Pickup', 'Online Orders', 'Custom Orders', 'Wholesale', 'Retail', 'Returns Accepted', 'Gift Wrapping'],
+  'local-market': ['Wholesale', 'Retail', 'Home Delivery', 'Fresh Daily', 'Bulk Orders', 'Seasonal Items', 'Organic Products'],
+  events: ['Venue Hire', 'Catering', 'Decoration', 'MC Services', 'Photography', 'Videography', 'Sound System', 'Lighting', 'Security', 'Outdoor Events'],
+}
+
+// ─── Form state type ──────────────────────────────────────────────────────────
+type FormState = {
+  businessName: string
+  category: string
+  address: string
+  description: string
+  whatsapp: string
+  phone: string
+  email: string
+  website: string
+  submitterName: string
+  features: string[]
+  plan: string
+  photos: string[]
+}
+
+const initialForm: FormState = {
+  businessName: '', category: '', address: '', description: '',
+  whatsapp: '', phone: '', email: '', website: '', submitterName: '',
+  features: [], plan: 'basic', photos: [],
+}
+
 export default function OnboardPage() {
-  const [step, setStep] = useState(2)
-  const [selectedPlan, setSelectedPlan] = useState('verified')
+  const [step, setStep] = useState(1)
+  const [form, setForm] = useState<FormState>(initialForm)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+
+  const set = (key: keyof FormState, val: string | string[]) =>
+    setForm(prev => ({ ...prev, [key]: val }))
+
+  const toggleFeature = (f: string) =>
+    set('features', form.features.includes(f)
+      ? form.features.filter(x => x !== f)
+      : [...form.features, f])
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []).slice(0, 5 - form.photos.length)
+    if (!files.length) return
+    setUploading(true)
+    setUploadError('')
+    try {
+      const urls = await Promise.all(
+        files.map(async (file) => {
+          const fd = new FormData()
+          fd.append('file', file)
+          fd.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!)
+          const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+            { method: 'POST', body: fd }
+          )
+          if (!res.ok) throw new Error('Upload failed')
+          const data = await res.json()
+          return data.secure_url as string
+        })
+      )
+      set('photos', [...form.photos, ...urls])
+    } catch {
+      setUploadError('Upload failed. Check your Cloudinary config and try again.')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const removePhoto = (i: number) =>
+    set('photos', form.photos.filter((_, j) => j !== i))
+
+  const categoryFeatures = CATEGORY_FEATURES[form.category] ?? []
+  const selectedPlan = plans.find(p => p.id === form.plan)!
+
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      const res = await fetch('/api/submit-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      setSubmitted(true)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-gray-50 flex items-center justify-center py-12 px-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center max-w-md w-full">
+          <div className="w-20 h-20 bg-[#e6f2f1] rounded-full flex items-center justify-center mx-auto mb-5">
+            <Check size={36} className="text-[#005F56]" />
+          </div>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-3 tracking-tight">Submission Received!</h2>
+          <p className="text-gray-500 max-w-sm mx-auto mb-2 leading-relaxed">
+            <strong>{form.businessName}</strong> is now under review.
+          </p>
+          <p className="text-gray-400 text-sm max-w-sm mx-auto mb-8 leading-relaxed">
+            Our team will review your listing and contact you via WhatsApp or email within 24 hours once it&apos;s approved.
+          </p>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all"
+          >
+            Back to Home <ChevronRight size={16} />
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">List Your Business</h1>
-          <p className="text-gray-500">Get WhatsApp leads from thousands of visitors to Akure</p>
+          <p className="text-gray-500">Get WhatsApp leads from thousands of visitors and residents in Akure</p>
         </div>
 
         {/* Step indicators */}
@@ -68,178 +202,419 @@ export default function OnboardPage() {
           ))}
         </div>
 
-        {/* Step 1 — Business Info */}
+        {/* ── Step 1: Business Info ── */}
         {step === 1 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
             <h2 className="text-xl font-extrabold text-gray-900 mb-6">Business Information</h2>
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Business Name *
-                </label>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Business Name *</label>
                 <div className="relative">
                   <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors" placeholder="e.g. De Hills Hotel & Resort" />
+                  <input
+                    value={form.businessName}
+                    onChange={e => set('businessName', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                    placeholder="e.g. De Hills Hotel & Resort"
+                  />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Category *</label>
-                  <select className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors bg-white">
-                    <option>Stays / Hotel</option>
-                    <option>Cars</option>
-                    <option>Activities</option>
-                    <option>Events</option>
-                    <option>Services</option>
-                    <option>Products</option>
+                  <select
+                    value={form.category}
+                    onChange={e => { set('category', e.target.value); set('features', []) }}
+                    className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors bg-white"
+                  >
+                    <option value="">Select a category</option>
+                    <option value="hotels">Hotels</option>
+                    <option value="foods">Foods</option>
+                    <option value="shortlets">Shortlets</option>
+                    <option value="services">Services</option>
+                    <option value="health">Health</option>
+                    <option value="shops">Shops</option>
+                    <option value="local-market">Local Market</option>
+                    <option value="events">Events</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Location *</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Address *</label>
                   <div className="relative">
                     <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors" placeholder="e.g. Akure, Ondo State" />
+                    <input
+                      value={form.address}
+                      onChange={e => set('address', e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                      placeholder="Street, Area, Akure"
+                    />
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">WhatsApp Number *</label>
-                <div className="relative">
-                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors" placeholder="+234 800 000 0000" />
-                </div>
-              </div>
+
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description *</label>
                 <div className="relative">
                   <FileText size={16} className="absolute left-3.5 top-3.5 text-gray-400" />
-                  <textarea className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors resize-none" rows={3} placeholder="Describe your business, what makes it special..." />
+                  <textarea
+                    value={form.description}
+                    onChange={e => set('description', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors resize-none"
+                    rows={3}
+                    placeholder="Describe your business, what makes it special…"
+                  />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Upload Photos</label>
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-[#005F56] transition-colors group">
-                  <Upload size={28} className="mx-auto mb-2 text-gray-300 group-hover:text-[#005F56] transition-colors" />
-                  <div className="text-sm font-semibold text-gray-600 mb-1">Drop photos here or click to browse</div>
-                  <div className="text-xs text-gray-400">JPG, PNG up to 10MB each · Max 10 photos</div>
+
+              <div className="border-t border-gray-100 pt-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Contact Details</p>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">WhatsApp *</label>
+                      <div className="relative">
+                        <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          value={form.whatsapp}
+                          onChange={e => set('whatsapp', e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                          placeholder="+234 800 000 0000"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone (optional)</label>
+                      <div className="relative">
+                        <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          value={form.phone}
+                          onChange={e => set('phone', e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                          placeholder="+234 800 000 0000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email (optional)</label>
+                      <div className="relative">
+                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={e => set('email', e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                          placeholder="business@email.com"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Website (optional)</label>
+                      <div className="relative">
+                        <Globe size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          value={form.website}
+                          onChange={e => set('website', e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                          placeholder="https://..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Your Name *</label>
+                    <div className="relative">
+                      <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        value={form.submitterName}
+                        onChange={e => set('submitterName', e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                        placeholder="Who is submitting this listing?"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <button onClick={() => setStep(2)} className="w-full mt-6 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all">
-              Continue to Plan Selection <ArrowRight size={16} />
+
+            {/* Photos */}
+            <div className="border-t border-gray-100 pt-5 mt-5">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                Photos&nbsp;
+                <span className="font-normal normal-case text-gray-400">({form.photos.length}/5 · stored on Cloudinary)</span>
+              </p>
+
+              {form.photos.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {form.photos.map((url, i) => (
+                    <div key={url} className="relative group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="w-20 h-20 object-cover rounded-xl border border-gray-200" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full hidden group-hover:flex items-center justify-center"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {form.photos.length < 5 && (
+                <label className={cn(
+                  'flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors',
+                  uploading ? 'border-[#005F56] bg-[#e6f2f1]' : 'border-gray-200 hover:border-[#005F56]'
+                )}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <>
+                      <div className="w-6 h-6 border-2 border-[#005F56] border-t-transparent rounded-full animate-spin mb-2" />
+                      <span className="text-sm font-semibold text-[#005F56]">Uploading…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={24} className="text-gray-300 mb-2" />
+                      <span className="text-sm font-semibold text-gray-500">Click to add photos</span>
+                      <span className="text-xs text-gray-400 mt-1">JPG, PNG · Up to 5 photos · Auto-compressed</span>
+                    </>
+                  )}
+                </label>
+              )}
+
+              {uploadError && (
+                <p className="text-xs text-red-500 font-semibold mt-2">{uploadError}</p>
+              )}
+            </div>
+
+            <button
+              onClick={() => setStep(2)}
+              disabled={!form.businessName || !form.category || !form.address || !form.description || !form.whatsapp || !form.submitterName}
+              className="w-full mt-6 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Continue to Features <ArrowRight size={16} />
             </button>
           </div>
         )}
 
-        {/* Step 2 — Plans */}
+        {/* ── Step 2: Features & Amenities ── */}
         {step === 2 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Choose Your Plan</h2>
-            <p className="text-sm text-gray-500 mb-7">All plans include WhatsApp lead generation. Upgrade anytime.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-7">
-              {plans.map(plan => (
-                <button
-                  key={plan.id}
-                  onClick={() => setSelectedPlan(plan.id)}
-                  className={cn(
-                    'relative text-left rounded-2xl border-2 p-5 transition-all',
-                    selectedPlan === plan.id ? `${plan.color} shadow-md ring-2 ring-[#005F56]/10` : 'border-gray-100 hover:border-gray-200'
-                  )}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#005F56] text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
-                      ⭐ Most Popular
-                    </div>
-                  )}
-                  <div className="mb-3">
-                    <span className={cn(
-                      'inline-block text-[10px] font-bold px-2.5 py-1 rounded-lg',
-                      plan.id === 'basic' ? 'bg-gray-100 text-gray-500' :
-                      plan.id === 'verified' ? 'bg-[#e6f2f1] text-[#005F56]' :
-                      'bg-yellow-50 text-yellow-700'
-                    )}>
-                      {plan.label}
-                    </span>
-                  </div>
-                  <div className="text-2xl font-extrabold text-gray-900 mb-0.5">{plan.price}</div>
-                  <div className="text-xs text-gray-400 mb-4">{plan.period}</div>
-                  <ul className="space-y-2">
-                    {plan.features.map(f => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-gray-600">
-                        <Check size={13} className="text-[#005F56] flex-shrink-0 mt-0.5" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  {selectedPlan === plan.id && (
-                    <div className="absolute top-3 right-3 w-5 h-5 bg-[#005F56] rounded-full flex items-center justify-center">
-                      <Check size={11} className="text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
+            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Features &amp; Amenities</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Select everything that applies to <strong>{form.businessName}</strong>. Customers will see these on your listing.
+            </p>
+
+            {categoryFeatures.length === 0 ? (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                No features available for this category.
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                {categoryFeatures.map(feature => {
+                  const on = form.features.includes(feature)
+                  return (
+                    <button
+                      key={feature}
+                      onClick={() => toggleFeature(feature)}
+                      className={cn(
+                        'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border-2 text-sm font-semibold text-left transition-all',
+                        on
+                          ? 'border-[#005F56] bg-[#e6f2f1] text-[#005F56]'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      )}
+                    >
+                      <div className={cn(
+                        'w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border-2 transition-all',
+                        on ? 'bg-[#005F56] border-[#005F56]' : 'border-gray-300'
+                      )}>
+                        {on && <Check size={10} className="text-white" strokeWidth={3} />}
+                      </div>
+                      {feature}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {form.features.length > 0 && (
+              <p className="text-xs text-[#005F56] font-semibold mb-4">
+                {form.features.length} feature{form.features.length > 1 ? 's' : ''} selected
+              </p>
+            )}
+
             <div className="flex gap-3">
               <button onClick={() => setStep(1)} className="flex items-center gap-1.5 px-5 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-gray-300 transition-all">
                 <ArrowLeft size={15} /> Back
               </button>
               <button onClick={() => setStep(3)} className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all">
-                Continue to Review <ArrowRight size={16} />
+                Continue to Plan <ArrowRight size={16} />
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 3 — Review */}
+        {/* ── Step 3: Choose Plan ── */}
         {step === 3 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-            <h2 className="text-xl font-extrabold text-gray-900 mb-6">Review Your Submission</h2>
-            <div className="bg-gray-50 rounded-xl p-5 mb-5">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Business Details</div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                {[
-                  ['Business', 'Your Business Name'],
-                  ['Category', 'Stays / Hotel'],
-                  ['Location', 'Akure, Ondo State'],
-                  ['WhatsApp', '+234 800 000 0000'],
-                  ['Plan', `${plans.find(p => p.id === selectedPlan)?.label} — ${plans.find(p => p.id === selectedPlan)?.price}/mo`],
-                  ['Photos', '0 uploaded'],
-                ].map(([label, val]) => (
-                  <div key={label}><span className="text-gray-400">{label}:</span> <strong className="text-gray-800">{val}</strong></div>
-                ))}
-              </div>
+            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Choose Your Plan</h2>
+            <p className="text-sm text-gray-500 mb-7">All plans include 1 listing. Upgrade anytime.</p>
+
+            <div className="grid grid-cols-1 gap-4 mb-7">
+              {plans.map(plan => (
+                <button
+                  key={plan.id}
+                  onClick={() => set('plan', plan.id)}
+                  className={cn(
+                    'relative text-left rounded-2xl border-2 p-5 transition-all',
+                    form.plan === plan.id
+                      ? `${plan.color} shadow-md ring-2 ring-[#005F56]/10`
+                      : 'border-gray-100 hover:border-gray-200'
+                  )}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-5 bg-[#005F56] text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                      ⭐ Most Popular
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={cn(
+                          'inline-block text-[10px] font-bold px-2.5 py-1 rounded-lg',
+                          plan.id === 'basic' ? 'bg-gray-100 text-gray-500' :
+                          plan.id === 'verified' ? 'bg-[#e6f2f1] text-[#005F56]' :
+                          'bg-yellow-50 text-yellow-700'
+                        )}>{plan.label}</span>
+                        <span className="text-lg font-extrabold text-gray-900">{plan.price}</span>
+                        {plan.period && <span className="text-xs text-gray-400">{plan.period}</span>}
+                      </div>
+                      <p className="text-sm text-gray-500 leading-relaxed">{plan.desc}</p>
+                    </div>
+                    <div className={cn(
+                      'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all',
+                      form.plan === plan.id ? 'bg-[#005F56] border-[#005F56]' : 'border-gray-300'
+                    )}>
+                      {form.plan === plan.id && <Check size={11} className="text-white" strokeWidth={3} />}
+                    </div>
+                  </div>
+                </button>
+              ))}
             </div>
-            <div className="flex items-start gap-3 bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-              <Star size={16} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-700">Your listing will go live after admin review — usually within 24 hours.</p>
-            </div>
+
             <div className="flex gap-3">
               <button onClick={() => setStep(2)} className="flex items-center gap-1.5 px-5 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-gray-300 transition-all">
                 <ArrowLeft size={15} /> Back
               </button>
               <button onClick={() => setStep(4)} className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all">
-                Submit for Review <ArrowRight size={16} />
+                Review Submission <ArrowRight size={16} />
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 4 — Success */}
+        {/* ── Step 4: Review & Submit ── */}
         {step === 4 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-            <div className="w-20 h-20 bg-[#e6f2f1] rounded-full flex items-center justify-center mx-auto mb-5">
-              <Check size={36} className="text-[#005F56]" />
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+            <h2 className="text-xl font-extrabold text-gray-900 mb-6">Review Your Submission</h2>
+
+            <div className="space-y-4 mb-6">
+              {/* Business Info */}
+              <div className="bg-gray-50 rounded-xl p-5">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Business Details</div>
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                  {[
+                    ['Business', form.businessName],
+                    ['Category', form.category],
+                    ['Address', form.address],
+                    ['WhatsApp', form.whatsapp],
+                    ...(form.phone ? [['Phone', form.phone]] : []),
+                    ...(form.email ? [['Email', form.email]] : []),
+                    ...(form.website ? [['Website', form.website]] : []),
+                    ['Submitted by', form.submitterName],
+                  ].map(([label, val]) => (
+                    <div key={label}>
+                      <span className="text-gray-400">{label}: </span>
+                      <strong className="text-gray-800">{val}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Features */}
+              {form.features.length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-5">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Features Selected</div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.features.map(f => (
+                      <span key={f} className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e6f2f1] text-[#005F56] text-xs font-semibold rounded-lg">
+                        <Check size={10} /> {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Photos */}
+              {form.photos.length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-5">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Photos ({form.photos.length})</div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.photos.map((url, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={i} src={url} alt="" className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Plan */}
+              <div className="bg-gray-50 rounded-xl p-5">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Selected Plan</div>
+                <div className="flex items-center gap-3">
+                  <span className={cn(
+                    'inline-block text-[10px] font-bold px-2.5 py-1 rounded-lg',
+                    form.plan === 'basic' ? 'bg-gray-100 text-gray-500' :
+                    form.plan === 'verified' ? 'bg-[#e6f2f1] text-[#005F56]' : 'bg-yellow-50 text-yellow-700'
+                  )}>{selectedPlan.label}</span>
+                  <span className="font-extrabold text-gray-900">{selectedPlan.price}{selectedPlan.period}</span>
+                </div>
+              </div>
             </div>
-            <h2 className="text-2xl font-extrabold text-gray-900 mb-2 tracking-tight">Submission Received!</h2>
-            <p className="text-gray-500 max-w-sm mx-auto mb-8 leading-relaxed">
-              Your listing is under review. We&apos;ll notify you by WhatsApp within 24 hours once it&apos;s approved.
-            </p>
-            <a
-              href="/vendor/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all"
-            >
-              Go to Vendor Dashboard <ChevronRight size={16} />
-            </a>
+
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <Star size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-700">Your listing will go live after admin review — usually within 24 hours. We will contact you via WhatsApp.</p>
+            </div>
+
+            {submitError && (
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-semibold mb-4">
+                {submitError}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep(3)} className="flex items-center gap-1.5 px-5 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-gray-300 transition-all">
+                <ArrowLeft size={15} /> Back
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all disabled:opacity-60"
+              >
+                {submitting ? 'Submitting…' : 'Submit for Review'} <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </div>

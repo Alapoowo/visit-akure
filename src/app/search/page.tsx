@@ -51,7 +51,7 @@ function SearchResults() {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search stays, cars, activities, events…"
+            placeholder="Search hotels, food, shortlets, services…"
             className="w-full pl-11 pr-10 py-4 bg-white border-2 border-gray-200 rounded-2xl text-sm outline-none focus:border-[#005F56] transition-colors shadow-sm"
             autoFocus
           />

@@ -1,6 +1,6 @@
 import { Calendar } from 'lucide-react'
-import CategoryPageLayout from '@/components/listings/CategoryPageLayout'
-import { getEventsListings } from '@/data/listings'
+import CategoryGroupedPage from '@/components/listings/CategoryGroupedPage'
+import { getCategorySection } from '@/data/listings'
 
 export const metadata = {
   title: 'Events in Akure | Visit Akure',
@@ -8,16 +8,19 @@ export const metadata = {
 }
 
 export default function EventsPage() {
-  const listings = getEventsListings()
   return (
-    <CategoryPageLayout
+    <CategoryGroupedPage
       title="Events in Akure"
-      subtitle="Discover festivals, concerts and cultural celebrations"
+      subtitle="Festivals, concerts, tech summits and cultural celebrations"
       emoji="🎉"
-      category="events"
-      listings={listings}
       icon={Calendar}
-      showSidebar={false}
+      iconColor="text-white"
+      accentHex="#be185d"
+      mostPopular={getCategorySection('events', 'popular')}
+      nearMe={getCategorySection('events', 'popular', 8)}
+      newListings={getCategorySection('events', 'new')}
+      budgetFriendly={getCategorySection('events', 'budget')}
+      luxury={getCategorySection('events', 'luxury')}
     />
   )
 }

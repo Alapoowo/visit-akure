@@ -1,4 +1,12 @@
-export type Category = 'stays' | 'cars' | 'activities' | 'events' | 'services' | 'products'
+export type Category =
+  | 'hotels'
+  | 'foods'
+  | 'shortlets'
+  | 'services'
+  | 'health'
+  | 'shops'
+  | 'local-market'
+  | 'events'
 
 export interface Listing {
   id: string
@@ -6,6 +14,7 @@ export interface Listing {
   category: Category
   description: string
   price: number
+  priceMax?: number
   priceUnit: string
   location: string
   whatsappNumber: string
@@ -18,8 +27,28 @@ export interface Listing {
   vendorId: string
   vendor?: Vendor
   reviews?: Review[]
-  // Category-specific fields
   specs?: Record<string, string>
+  createdAt: string
+  listingTier?: 'luxury' | 'budget'
+  isAvailable?: boolean
+}
+
+export interface Booking {
+  id: string
+  listingId: string
+  listingTitle: string
+  listingCategory: string
+  vendorWhatsapp: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string
+  checkIn: string
+  checkOut: string
+  days: number
+  pricePerUnit: number
+  serviceFee: number
+  total: number
+  message?: string
   createdAt: string
 }
 

@@ -5,10 +5,31 @@ import { CheckCircle2 } from 'lucide-react'
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [subject, setSubject] = useState('General Enquiry')
+  const [message, setMessage] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSending(true)
+    setError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message }),
+      })
+      if (!res.ok) throw new Error('Failed to send')
+      setSubmitted(true)
+    } catch {
+      setError('Could not send your message. Please try WhatsApp or email us directly.')
+    } finally {
+      setSending(false)
+    }
   }
 
   if (submitted) {
@@ -22,7 +43,7 @@ export default function ContactForm() {
           Thanks for reaching out. We&apos;ll get back to you within 24 hours.
         </p>
         <button
-          onClick={() => setSubmitted(false)}
+          onClick={() => { setSubmitted(false); setName(''); setEmail(''); setMessage('') }}
           className="text-sm font-bold text-[#005F56] underline"
         >
           Send another message
@@ -39,6 +60,8 @@ export default function ContactForm() {
           <input
             type="text"
             required
+            value={name}
+            onChange={e => setName(e.target.value)}
             placeholder="Your full name"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#005F56] transition-colors"
           />
@@ -48,6 +71,8 @@ export default function ContactForm() {
           <input
             type="email"
             required
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#005F56] transition-colors"
           />
@@ -56,7 +81,11 @@ export default function ContactForm() {
 
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-1.5">Subject</label>
-        <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#005F56] transition-colors bg-white cursor-pointer">
+        <select
+          value={subject}
+          onChange={e => setSubject(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#005F56] transition-colors bg-white cursor-pointer"
+        >
           <option>General Enquiry</option>
           <option>List My Business</option>
           <option>Report a Listing</option>
@@ -71,16 +100,23 @@ export default function ContactForm() {
         <textarea
           rows={5}
           required
+          value={message}
+          onChange={e => setMessage(e.target.value)}
           placeholder="Tell us how we can help..."
           className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#005F56] transition-colors resize-none"
         />
       </div>
 
+      {error && (
+        <p className="text-sm text-red-500 font-semibold">{error}</p>
+      )}
+
       <button
         type="submit"
-        className="w-full bg-[#005F56] text-white font-extrabold py-4 rounded-xl hover:bg-[#004840] transition-colors text-sm"
+        disabled={sending}
+        className="w-full bg-[#005F56] text-white font-extrabold py-4 rounded-xl hover:bg-[#004840] transition-colors text-sm disabled:opacity-60"
       >
-        Send Message
+        {sending ? 'Sending…' : 'Send Message'}
       </button>
     </form>
   )

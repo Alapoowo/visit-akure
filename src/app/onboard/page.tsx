@@ -40,16 +40,72 @@ const plans = [
   },
 ]
 
-// ─── Category features ────────────────────────────────────────────────────────
-const CATEGORY_FEATURES: Record<string, string[]> = {
-  hotels: ['WiFi', 'Swimming Pool', 'Gym', 'Restaurant', 'Bar', 'Parking', 'Air Conditioning', 'Room Service', 'Laundry', 'Conference Room', '24/7 Security', 'CCTV', 'Spa'],
-  foods: ['Dine-in', 'Takeout', 'Home Delivery', 'Outdoor Seating', 'WiFi', 'Parking', 'Air Conditioning', 'Bar', 'Private Events', 'Reservations', 'Kids Menu'],
-  shortlets: ['WiFi', 'Generator', 'Water Supply', 'Air Conditioning', 'Fully Equipped Kitchen', 'Parking', 'Security', 'Swimming Pool', 'Gym', 'Laundry', 'CCTV', 'Smart TV', 'Netflix'],
-  services: ['Home Service', 'Walk-in', 'Online Booking', 'Free Consultation', 'Emergency Service', 'Weekend Service', 'Mobile Service', 'Corporate Packages'],
-  health: ['Walk-in', 'Appointment Only', 'Emergency Service', 'Health Insurance Accepted', 'Ambulance Service', 'Lab Tests', 'X-Ray', 'Pharmacy', '24/7 Service', 'Specialist Doctors'],
-  shops: ['Home Delivery', 'In-Store Pickup', 'Online Orders', 'Custom Orders', 'Wholesale', 'Retail', 'Returns Accepted', 'Gift Wrapping'],
-  'local-market': ['Wholesale', 'Retail', 'Home Delivery', 'Fresh Daily', 'Bulk Orders', 'Seasonal Items', 'Organic Products'],
-  events: ['Venue Hire', 'Catering', 'Decoration', 'MC Services', 'Photography', 'Videography', 'Sound System', 'Lighting', 'Security', 'Outdoor Events'],
+// ─── Category amenity checkboxes ─────────────────────────────────────────────
+const CATEGORY_AMENITIES: Record<string, string[]> = {
+  hotels:        ['WiFi', 'Swimming Pool', 'Gym', 'Restaurant', 'Bar', 'Parking', 'Air Conditioning', 'Room Service', 'Laundry', 'Conference Room', '24/7 Security', 'CCTV', 'Spa'],
+  foods:         ['Outdoor Seating', 'WiFi', 'Parking', 'Air Conditioning', 'Bar', 'Private Events', 'Reservations', 'Kids Menu'],
+  shortlets:     ['WiFi', 'Generator', 'Water Supply', 'Air Conditioning', 'Fully Equipped Kitchen', 'Parking', 'Security', 'Swimming Pool', 'Gym', 'Laundry', 'CCTV', 'Smart TV', 'Netflix'],
+  services:      ['Home Service', 'Walk-in', 'Online Booking', 'Free Consultation', 'Emergency Service', 'Weekend Service', 'Mobile Service', 'Corporate Packages'],
+  health:        ['Walk-in', 'Emergency Service', 'Health Insurance Accepted', 'Ambulance Service', 'Lab Tests', 'X-Ray', 'Pharmacy', '24/7 Service', 'Specialist Doctors'],
+  shops:         ['Home Delivery', 'In-Store Pickup', 'Online Orders', 'Custom Orders', 'Wholesale', 'Retail', 'Returns Accepted', 'Gift Wrapping'],
+  'local-market':['Wholesale', 'Retail', 'Home Delivery', 'Fresh Daily', 'Bulk Orders', 'Seasonal Items', 'Organic Products'],
+  events:        ['Catering', 'Decoration', 'MC Services', 'Photography', 'Videography', 'Sound System', 'Lighting', 'Security', 'Outdoor Events'],
+}
+
+// ─── Category structured fields config ───────────────────────────────────────
+type FieldDef =
+  | { kind: 'select'; key: string; label: string; options: string[] }
+  | { kind: 'input';  key: string; label: string; placeholder: string }
+
+const CATEGORY_FIELDS: Record<string, FieldDef[]> = {
+  hotels: [
+    { kind: 'select', key: 'hotelType',  label: 'Property Type',    options: ['Hotel', 'Motel', 'Resort', 'Guesthouse', 'Inn', 'Serviced Apartment'] },
+    { kind: 'select', key: 'rooms',      label: 'Number of Rooms',  options: ['1–5 rooms', '6–15 rooms', '16–50 rooms', '51+ rooms'] },
+    { kind: 'input',  key: 'capacity',   label: 'Max Guest Capacity', placeholder: 'e.g. 80 guests' },
+    { kind: 'select', key: 'minStay',    label: 'Minimum Stay',      options: ['1 Night', '2 Nights', '3 Nights', '1 Week'] },
+  ],
+  foods: [
+    { kind: 'select', key: 'cuisine',    label: 'Cuisine Type',      options: ['Nigerian', 'Continental', 'Chinese', 'Lebanese', 'Fast Food', 'Cafe & Bakery', 'Bar & Lounge', 'Mixed'] },
+    { kind: 'select', key: 'service',    label: 'Service Mode',      options: ['Dine-in only', 'Takeout only', 'Dine-in & Takeout', 'Dine-in, Takeout & Delivery'] },
+    { kind: 'select', key: 'openDays',   label: 'Open Days',         options: ['Mon – Fri', 'Mon – Sat', 'Daily (Mon – Sun)', 'Weekends Only'] },
+    { kind: 'input',  key: 'hours',      label: 'Opening Hours',     placeholder: 'e.g. 8am – 10pm' },
+    { kind: 'input',  key: 'seating',    label: 'Seating Capacity',  placeholder: 'e.g. 60 seats' },
+  ],
+  shortlets: [
+    { kind: 'select', key: 'aptType',    label: 'Apartment Type',    options: ['Studio', '1-Bedroom', '2-Bedroom', '3-Bedroom', 'Duplex', 'Villa', 'Penthouse'] },
+    { kind: 'select', key: 'bedrooms',   label: 'Bedrooms',          options: ['Studio', '1', '2', '3', '4', '5+'] },
+    { kind: 'input',  key: 'maxGuests',  label: 'Max Guests',        placeholder: 'e.g. 4 guests' },
+    { kind: 'select', key: 'minStay',    label: 'Minimum Stay',      options: ['1 Night', '2 Nights', '3 Nights', '1 Week', '1 Month'] },
+  ],
+  services: [
+    { kind: 'input',  key: 'serviceType', label: 'Type of Service',  placeholder: 'e.g. Plumbing, Electrical, Generator Repair…' },
+    { kind: 'select', key: 'mode',        label: 'Service Mode',     options: ['Walk-in', 'Home Service', 'Walk-in & Home Service', 'Online / Remote'] },
+    { kind: 'select', key: 'availability',label: 'Availability',     options: ['Mon – Fri', 'Mon – Sat', '24/7', 'By Appointment', 'Weekends Only'] },
+    { kind: 'input',  key: 'response',    label: 'Typical Response', placeholder: 'e.g. Same day, Within 24 hrs' },
+  ],
+  health: [
+    { kind: 'select', key: 'facilityType', label: 'Facility Type',  options: ['Hospital', 'General Clinic', 'Pharmacy', 'Dental Clinic', 'Optical Centre', 'Diagnostic Lab', 'Specialist Clinic', 'Physiotherapy'] },
+    { kind: 'select', key: 'appointment',  label: 'Appointment',    options: ['Walk-ins Welcome', 'Appointment Required', 'Both'] },
+    { kind: 'select', key: 'openDays',     label: 'Open Days',      options: ['Mon – Fri', 'Mon – Sat', 'Daily (Mon – Sun)', '24/7'] },
+    { kind: 'input',  key: 'hours',        label: 'Opening Hours',  placeholder: 'e.g. 8am – 8pm' },
+  ],
+  shops: [
+    { kind: 'select', key: 'shopType',  label: 'Shop Type',          options: ['Fashion & Clothing', 'Electronics', 'Grocery & Food', 'Cosmetics & Beauty', 'Phone & Accessories', 'Books & Stationery', 'Hardware', 'Gifts & Souvenirs', 'General Merchandise'] },
+    { kind: 'select', key: 'shopMode',  label: 'Shopping Mode',      options: ['In-Store Only', 'Online Orders', 'In-Store & Online'] },
+    { kind: 'select', key: 'openDays',  label: 'Open Days',          options: ['Mon – Fri', 'Mon – Sat', 'Daily (Mon – Sun)', 'Weekdays Only'] },
+    { kind: 'input',  key: 'hours',     label: 'Opening Hours',      placeholder: 'e.g. 9am – 7pm' },
+  ],
+  'local-market': [
+    { kind: 'select', key: 'marketType',  label: 'Market Type',      options: ['Food & Produce', 'Clothing & Fabric', 'Craft & Artifacts', 'Electronics', 'Mixed / General'] },
+    { kind: 'select', key: 'tradingDays', label: 'Trading Days',     options: ['Daily', 'Mon – Sat', 'Weekdays Only', 'Weekends Only', 'Market Days (specific)'] },
+    { kind: 'input',  key: 'marketDays',  label: 'Market Day Details', placeholder: 'e.g. Every Thursday & Sunday' },
+  ],
+  events: [
+    { kind: 'select', key: 'eventType',  label: 'Event Type',        options: ['Music Concert', 'Wedding & Reception', 'Corporate Event', 'Sports', 'Festival', 'Exhibition', 'Private Party', 'Religious Event', 'Other'] },
+    { kind: 'input',  key: 'capacity',   label: 'Venue Capacity',    placeholder: 'e.g. 500 guests' },
+    { kind: 'input',  key: 'duration',   label: 'Event Duration',    placeholder: 'e.g. 1 day, 3 hours' },
+    { kind: 'input',  key: 'location',   label: 'Venue / Location',  placeholder: 'e.g. Event Centre, Alagbaka' },
+  ],
 }
 
 // ─── Form state type ──────────────────────────────────────────────────────────
@@ -64,6 +120,7 @@ type FormState = {
   website: string
   submitterName: string
   features: string[]
+  details: Record<string, string>
   plan: string
   photos: string[]
 }
@@ -71,7 +128,7 @@ type FormState = {
 const initialForm: FormState = {
   businessName: '', category: '', address: '', description: '',
   whatsapp: '', phone: '', email: '', website: '', submitterName: '',
-  features: [], plan: 'basic', photos: [],
+  features: [], details: {}, plan: 'basic', photos: [],
 }
 
 export default function OnboardPage() {
@@ -83,8 +140,11 @@ export default function OnboardPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
 
-  const set = (key: keyof FormState, val: string | string[]) =>
+  const set = (key: keyof FormState, val: string | string[] | Record<string, string>) =>
     setForm(prev => ({ ...prev, [key]: val }))
+
+  const setDetail = (key: string, val: string) =>
+    setForm(prev => ({ ...prev, details: { ...prev.details, [key]: val } }))
 
   const toggleFeature = (f: string) =>
     set('features', form.features.includes(f)
@@ -123,7 +183,8 @@ export default function OnboardPage() {
   const removePhoto = (i: number) =>
     set('photos', form.photos.filter((_, j) => j !== i))
 
-  const categoryFeatures = CATEGORY_FEATURES[form.category] ?? []
+  const categoryAmenities = CATEGORY_AMENITIES[form.category] ?? []
+  const categoryFields = CATEGORY_FIELDS[form.category] ?? []
   const selectedPlan = plans.find(p => p.id === form.plan)!
 
   const handleSubmit = async () => {
@@ -343,7 +404,7 @@ export default function OnboardPage() {
             <div className="border-t border-gray-100 pt-5 mt-5">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
                 Photos&nbsp;
-                <span className="font-normal normal-case text-gray-400">({form.photos.length}/5 · stored on Cloudinary)</span>
+                <span className="font-normal normal-case text-gray-400">({form.photos.length}/5)</span>
               </p>
 
               {form.photos.length > 0 && (
@@ -410,50 +471,91 @@ export default function OnboardPage() {
         {/* ── Step 2: Features & Amenities ── */}
         {step === 2 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Features &amp; Amenities</h2>
+            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Details &amp; Amenities</h2>
             <p className="text-sm text-gray-500 mb-6">
-              Select everything that applies to <strong>{form.businessName}</strong>. Customers will see these on your listing.
+              Tell customers more about <strong>{form.businessName}</strong>. These details appear on your listing page.
             </p>
 
-            {categoryFeatures.length === 0 ? (
-              <div className="text-center py-8 text-gray-400 text-sm">
-                No features available for this category.
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                {categoryFeatures.map(feature => {
-                  const on = form.features.includes(feature)
-                  return (
-                    <button
-                      key={feature}
-                      onClick={() => toggleFeature(feature)}
-                      className={cn(
-                        'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border-2 text-sm font-semibold text-left transition-all',
-                        on
-                          ? 'border-[#005F56] bg-[#e6f2f1] text-[#005F56]'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+            {/* Structured fields per category */}
+            {categoryFields.length > 0 && (
+              <div className="space-y-4 mb-7">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Details</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {categoryFields.map(field => (
+                    <div key={field.key}>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                        {field.label}
+                      </label>
+                      {field.kind === 'select' ? (
+                        <select
+                          value={form.details[field.key] ?? ''}
+                          onChange={e => setDetail(field.key, e.target.value)}
+                          className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors bg-white"
+                        >
+                          <option value="">Select…</option>
+                          {field.options.map((o: string) => (
+                            <option key={o} value={o}>{o}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          value={form.details[field.key] ?? ''}
+                          onChange={e => setDetail(field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                          className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
+                        />
                       )}
-                    >
-                      <div className={cn(
-                        'w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border-2 transition-all',
-                        on ? 'bg-[#005F56] border-[#005F56]' : 'border-gray-300'
-                      )}>
-                        {on && <Check size={10} className="text-white" strokeWidth={3} />}
-                      </div>
-                      {feature}
-                    </button>
-                  )
-                })}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            {form.features.length > 0 && (
-              <p className="text-xs text-[#005F56] font-semibold mb-4">
-                {form.features.length} feature{form.features.length > 1 ? 's' : ''} selected
-              </p>
+            {/* Amenity checkboxes */}
+            {categoryAmenities.length > 0 && (
+              <div className="border-t border-gray-100 pt-6">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Amenities &amp; Features</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                  {categoryAmenities.map((amenity: string) => {
+                    const on = form.features.includes(amenity)
+                    return (
+                      <button
+                        key={amenity}
+                        type="button"
+                        onClick={() => toggleFeature(amenity)}
+                        className={cn(
+                          'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border-2 text-sm font-semibold text-left transition-all',
+                          on
+                            ? 'border-[#005F56] bg-[#e6f2f1] text-[#005F56]'
+                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        )}
+                      >
+                        <div className={cn(
+                          'w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border-2 transition-all',
+                          on ? 'bg-[#005F56] border-[#005F56]' : 'border-gray-300'
+                        )}>
+                          {on && <Check size={10} className="text-white" strokeWidth={3} />}
+                        </div>
+                        {amenity}
+                      </button>
+                    )
+                  })}
+                </div>
+                {form.features.length > 0 && (
+                  <p className="text-xs text-[#005F56] font-semibold">
+                    {form.features.length} amenit{form.features.length > 1 ? 'ies' : 'y'} selected
+                  </p>
+                )}
+              </div>
             )}
 
-            <div className="flex gap-3">
+            {categoryFields.length === 0 && categoryAmenities.length === 0 && (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                No details required for this category.
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-7">
               <button onClick={() => setStep(1)} className="flex items-center gap-1.5 px-5 py-3 border-2 border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:border-gray-300 transition-all">
                 <ArrowLeft size={15} /> Back
               </button>
@@ -551,10 +653,28 @@ export default function OnboardPage() {
                 </div>
               </div>
 
-              {/* Features */}
+              {/* Details */}
+              {Object.keys(form.details).filter(k => form.details[k]).length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-5">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Property Details</div>
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
+                    {Object.entries(form.details).filter(([, v]) => v).map(([k, v]) => {
+                      const fieldDef = (CATEGORY_FIELDS[form.category] ?? []).find(f => f.key === k)
+                      return (
+                        <div key={k}>
+                          <span className="text-gray-400">{fieldDef?.label ?? k}: </span>
+                          <strong className="text-gray-800">{v}</strong>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Amenities */}
               {form.features.length > 0 && (
                 <div className="bg-gray-50 rounded-xl p-5">
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Features Selected</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Amenities Selected</div>
                   <div className="flex flex-wrap gap-2">
                     {form.features.map(f => (
                       <span key={f} className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e6f2f1] text-[#005F56] text-xs font-semibold rounded-lg">

@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       submitter_name: body.submitterName,
       submitter_email: body.email,
       features: body.features ?? [],
+      details: body.details ?? {},
       photos: body.photos ?? [],
       plan: body.plan,
       status: 'pending',

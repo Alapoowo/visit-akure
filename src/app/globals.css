@@ -47,4 +47,5 @@ body {
 
 input[type="range"] { accent-color: #005F56; }
 input[type="checkbox"] { accent-color: #005F56; }
-*:focus-visible { outline: 2px solid #005F56; outline-offset: 2px; }
+:is(button, a, [tabindex]):focus-visible { outline: 2px solid #005F56; outline-offset: 2px; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }

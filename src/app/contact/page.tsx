@@ -20,9 +20,9 @@ const contactMethods = [
     icon: MessageCircle,
     color: 'bg-[#25D366]',
     title: 'WhatsApp',
-    detail: '+234 800 000 0000',
+    detail: '+234 706 115 0587',
     note: 'Quick responses during business hours',
-    href: 'https://wa.me/2348000000000',
+    href: 'https://wa.me/2347061150587',
   },
   {
     icon: MapPin,

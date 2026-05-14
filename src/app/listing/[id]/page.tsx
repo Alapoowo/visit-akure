@@ -40,13 +40,13 @@ export default async function ListingDetailPage({ params }: Props) {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6">
       {/* Back + actions row */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-3">
         <Link
           href={`/${listing.category}`}
-          className="flex items-center gap-2 text-[#005F56] font-semibold text-sm hover:underline"
+          className="flex items-center gap-1.5 text-[#005F56] font-semibold text-sm hover:underline flex-shrink-0"
         >
           <ArrowLeft size={16} />
-          Back to {categoryLabel}
+          <span className="hidden xs:inline">Back to </span>{categoryLabel}
         </Link>
         <ListingActions
           listingId={listing.id}
@@ -82,7 +82,7 @@ export default async function ListingDetailPage({ params }: Props) {
         <div>
           {/* Title + rating */}
           <div className="mb-5">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">{listing.title}</h1>
+            <h1 className="text-xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">{listing.title}</h1>
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
               <span className="flex items-center gap-1">
                 <Star size={14} className="text-[#F4C300] fill-[#F4C300]" />
@@ -95,7 +95,7 @@ export default async function ListingDetailPage({ params }: Props) {
             </div>
             {showPrice && (
               <div className="mt-3">
-                <span className="text-3xl font-extrabold text-[#005F56]">
+                <span className="text-xl sm:text-3xl font-extrabold text-[#005F56]">
                   {listing.priceMax
                     ? `${formatPrice(listing.price)} – ${formatPrice(listing.priceMax)}`
                     : formatPrice(listing.price)}

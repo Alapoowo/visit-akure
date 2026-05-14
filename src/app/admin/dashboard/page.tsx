@@ -6,12 +6,13 @@ import {
   ArrowUpRight, BadgeCheck, Eye, Pencil, Trash2,
   Check, X, Search, TrendingUp, Zap, Star, ToggleLeft, ToggleRight,
   Hotel, Utensils, Building2, Wrench, HeartPulse, ShoppingBag,
-  ShoppingCart, CalendarDays, Bell, Save, LogOut, Mail, Lock,
+  ShoppingCart, CalendarDays, Bell, Save, LogOut, Mail, Lock, Menu,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
 // ─── Sidebar config ─────────────────────────────────────────────────────────
@@ -881,6 +882,7 @@ function SettingsView() {
 export default function AdminDashboard() {
   const [active, setActive] = useState('dashboard')
   const [authLoading, setAuthLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -893,6 +895,11 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/admin/login')
+  }
+
+  const handleNav = (id: string) => {
+    setActive(id)
+    setSidebarOpen(false)
   }
 
   if (authLoading) {
@@ -928,55 +935,89 @@ export default function AdminDashboard() {
     settings:  'Settings',
   }
 
+  const SidebarContent = () => (
+    <>
+      {/* Logo */}
+      <div className="px-2 mb-6 flex items-center gap-2">
+        <Image src="/logo.png" alt="Visit Akure" width={100} height={32} className="h-8 w-auto object-contain brightness-0 invert" />
+        <div className="text-[10px] font-semibold text-white/40 leading-tight">Admin<br/>Panel</div>
+      </div>
+
+      {menuGroups.map(group => (
+        <div key={group.label} className="mb-4">
+          <div className="text-[10px] font-bold text-white/40 uppercase tracking-wider px-2 mb-1">{group.label}</div>
+          {group.items.map(({ icon: Icon, label, id, badge }) => (
+            <button
+              key={id}
+              onClick={() => handleNav(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all text-left mb-0.5',
+                active === id ? 'bg-white/20 text-white' : 'text-white/60 hover:bg-white/10 hover:text-white'
+              )}
+            >
+              <Icon size={15} />
+              <span className="flex-1">{label}</span>
+              {badge && (
+                <span className="bg-[#D62839] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                  {badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <div className="border-t border-white/10 pt-3 mt-2 space-y-0.5">
+        <Link href="/" className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:bg-white/10 hover:text-white transition-all">
+          <Globe size={15} /> View Site
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:bg-white/10 hover:text-white transition-all text-left"
+        >
+          <LogOut size={15} /> Logout
+        </button>
+      </div>
+    </>
+  )
+
   return (
-    <div className="flex min-h-[calc(100vh-64px)]">
-      {/* Sidebar */}
-      <aside className="w-[180px] flex-shrink-0 bg-[#005F56] py-5 px-2.5">
-        <div className="text-base font-extrabold text-white px-2 mb-5">
-          VISIT<span className="text-[#F4C300]">AKURE</span>
-          <div className="text-[10px] font-normal text-white/40 mt-0.5">Admin Panel</div>
-        </div>
-        {menuGroups.map(group => (
-          <div key={group.label} className="mb-4">
-            <div className="text-[10px] font-bold text-white/40 uppercase tracking-wider px-2 mb-1">{group.label}</div>
-            {group.items.map(({ icon: Icon, label, id, badge }) => (
-              <button
-                key={id}
-                onClick={() => setActive(id)}
-                className={cn(
-                  'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all text-left mb-0.5',
-                  active === id ? 'bg-white/20 text-white' : 'text-white/60 hover:bg-white/10 hover:text-white'
-                )}
-              >
-                <Icon size={15} />
-                <span className="flex-1">{label}</span>
-                {badge && (
-                  <span className="bg-[#D62839] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                    {badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        ))}
-        <div className="border-t border-white/10 pt-3 mt-2 space-y-0.5">
-          <Link href="/" className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:bg-white/10 hover:text-white transition-all">
-            <Globe size={15} /> View Site
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:bg-white/10 hover:text-white transition-all text-left"
-          >
-            <LogOut size={15} /> Logout
-          </button>
-        </div>
+    <div className="flex min-h-[calc(100vh-64px)] relative">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — desktop always visible, mobile slide-in */}
+      <aside className={cn(
+        'fixed lg:static top-0 bottom-0 left-0 z-40 w-[200px] flex-shrink-0 bg-[#005F56] py-5 px-2.5 flex flex-col transition-transform duration-200',
+        'lg:translate-x-0',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      )}>
+        <SidebarContent />
       </aside>
 
       {/* Main */}
-      <main className="flex-1 bg-gray-50 p-7 overflow-auto">
-        <div className="max-w-6xl">
-          <h1 className="text-xl font-extrabold text-gray-900 mb-1">{titles[active]}</h1>
-          <p className="text-sm text-gray-500 mb-7">Visit Akure · Admin Panel</p>
+      <main className="flex-1 bg-gray-50 overflow-auto min-w-0">
+        {/* Mobile top bar */}
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-20">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={20} className="text-gray-600" />
+          </button>
+          <Image src="/logo.png" alt="Visit Akure" width={90} height={28} className="h-7 w-auto object-contain" />
+          <span className="text-xs font-bold text-gray-400 ml-auto">Admin Panel</span>
+        </div>
+
+        <div className="p-4 sm:p-7 max-w-6xl">
+          <h1 className="text-lg sm:text-xl font-extrabold text-gray-900 mb-1">{titles[active]}</h1>
+          <p className="text-sm text-gray-500 mb-6">Visit Akure · Admin Panel</p>
           {renderView()}
         </div>
       </main>

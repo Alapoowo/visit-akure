@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <img
               src="/loader.png"
               alt=""
-              style={{ position: 'absolute', bottom: 8, left: 0, height: 36, objectFit: 'contain', animation: 'carDriveSplash 1.5s ease-in-out forwards' }}
+              style={{ position: 'absolute', bottom: 8, left: 0, height: 36, objectFit: 'contain', animation: 'carDriveSplash 2.4s ease-in-out forwards' }}
             />
           </div>
           <p style={{ marginTop: 20, color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase' }}>Visit Akure</p>

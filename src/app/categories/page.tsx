@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Grid3x3, ArrowRight } from 'lucide-react'
 import { CATEGORIES } from '@/config/categories'
-import { getListingsByCategory } from '@/data/listings'
 
 export const metadata = {
   title: 'All Categories | Visit Akure',
@@ -29,7 +28,6 @@ export default function CategoriesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {CATEGORIES.map(cat => {
             const Icon = cat.icon
-            const count = getListingsByCategory(cat.slug).filter(l => l.isApproved).length
             return (
               <Link
                 key={cat.slug}
@@ -40,8 +38,7 @@ export default function CategoriesPage() {
                   <Icon size={26} className={cat.color} />
                 </div>
                 <div className="font-extrabold text-gray-900 text-sm sm:text-base mb-1">{cat.label}</div>
-                <div className="text-xs text-gray-500 mb-2 leading-snug line-clamp-2">{cat.subcopy}</div>
-                <div className="text-xs font-bold text-gray-400">{count} listing{count !== 1 ? 's' : ''}</div>
+                <div className="text-xs text-gray-500 mb-1 leading-snug line-clamp-2">{cat.subcopy}</div>
                 <div className="mt-3 flex items-center gap-1 text-[#005F56] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                   Browse <ArrowRight size={12} />
                 </div>

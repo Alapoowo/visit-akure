@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageCircle, Star, BadgeCheck, Clock, CheckCircle2, ChevronRight } from 'lucide-react'
+import { MessageCircle, Star } from 'lucide-react'
 import { Listing } from '@/types'
 import { formatPrice } from '@/lib/utils'
 
@@ -10,8 +10,6 @@ interface Props {
 }
 
 export default function WhatsAppCTA({ listing, showPrice }: Props) {
-  const vendor = listing.vendor
-
   const handleWhatsApp = () => {
     const msg = encodeURIComponent(
       `Hi, I saw your listing on Visit Akure — *${listing.title}*. I'm interested and would like to know more.`
@@ -54,44 +52,9 @@ export default function WhatsAppCTA({ listing, showPrice }: Props) {
         Chat on WhatsApp
       </button>
 
-      <p className="text-xs text-gray-400 text-center mb-5">
+      <p className="text-xs text-gray-400 text-center">
         Tap to send a pre-filled message directly to the vendor
       </p>
-
-      <hr className="border-gray-100 mb-5" />
-
-      {/* Vendor info */}
-      {vendor && (
-        <>
-          <div className="text-sm font-bold text-gray-700 mb-3">Meet your partner</div>
-          <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-            <div className="w-11 h-11 rounded-full bg-[#e6f2f1] flex items-center justify-center text-[#005F56] font-bold text-sm flex-shrink-0">
-              {vendor.businessName.split(' ').map(n => n[0]).join('').slice(0, 2)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-bold text-sm text-gray-800 truncate">{vendor.businessName}</span>
-                {vendor.isVerified && (
-                  <span className="flex-shrink-0 flex items-center gap-1 bg-[#e6f2f1] text-[#005F56] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    <BadgeCheck size={10} /> Trusted
-                  </span>
-                )}
-              </div>
-              {vendor.responseTime && (
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <Clock size={11} /> Responds within {vendor.responseTime}
-                </div>
-              )}
-              {vendor.responseRate !== undefined && (
-                <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                  <CheckCircle2 size={11} /> {vendor.responseRate}% response rate
-                </div>
-              )}
-            </div>
-            <ChevronRight size={16} className="text-gray-300 flex-shrink-0" />
-          </div>
-        </>
-      )}
     </div>
   )
 }

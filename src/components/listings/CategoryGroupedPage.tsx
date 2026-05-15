@@ -1,6 +1,5 @@
-import { LucideIcon, TrendingUp, Sparkles, Tag, Gem } from 'lucide-react'
+import { LucideIcon, TrendingUp, Tag, Gem } from 'lucide-react'
 import ListingCard from './ListingCard'
-import NearMeSection from '@/components/home/NearMeSection'
 import { Listing } from '@/types'
 
 function ScrollRow({ title, subtitle, icon, listings, bg = '' }: {
@@ -24,7 +23,7 @@ function ScrollRow({ title, subtitle, icon, listings, bg = '' }: {
           </div>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 scroll-smooth snap-x">
-          {listings.map(l => <ListingCard key={l.id} listing={l} className="snap-start flex-shrink-0 w-[260px] sm:w-[280px]" />)}
+          {listings.map(l => <ListingCard key={l.id} listing={l} className="snap-start flex-shrink-0 w-[45vw] sm:w-[260px] lg:w-[280px]" />)}
         </div>
       </div>
     </section>
@@ -47,25 +46,24 @@ interface Props {
 
 export default function CategoryGroupedPage({
   title, subtitle, emoji, icon: Icon, iconColor = 'text-[#F4C300]', accentHex = '#005F56',
-  mostPopular, nearMe, newListings, budgetFriendly, luxury,
+  mostPopular, newListings, budgetFriendly, luxury,
 }: Props) {
-  const totalCount = mostPopular.length + newListings.length
-
   return (
     <div>
-      {/* Hero */}
+      {/* Hero — no listing count */}
       <div className="relative overflow-hidden" style={{ backgroundColor: accentHex }}>
         <div className="absolute right-8 top-1/2 -translate-y-1/2 text-[120px] opacity-[0.07] select-none pointer-events-none">
           {emoji}
         </div>
         <div className="absolute top-0 left-0 w-64 h-64 bg-black/10 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="max-w-[1280px] mx-auto px-6 py-12 relative z-10">
-          <div className="flex items-center gap-2 text-white/60 text-sm mb-3">
-            <Icon size={16} className={iconColor} />
-            <span>{totalCount}+ listings in Akure</span>
+        <div className="max-w-[1280px] mx-auto px-6 py-10 relative z-10 flex items-center gap-3">
+          <div className={`w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0`}>
+            <Icon size={20} className={iconColor} />
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">{title}</h1>
-          <p className="text-white/60 text-base">{subtitle}</p>
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{title}</h1>
+            <p className="text-white/60 text-sm mt-0.5">{subtitle}</p>
+          </div>
         </div>
       </div>
 
@@ -76,14 +74,10 @@ export default function CategoryGroupedPage({
         listings={mostPopular}
       />
 
-      <div className="bg-gray-50">
-        <NearMeSection listings={nearMe} />
-      </div>
-
       <ScrollRow
         title="New Listings"
         subtitle="Freshly added — be the first"
-        icon={<Sparkles size={20} className="text-[#F4C300]" />}
+        icon={<span className="text-lg">✨</span>}
         listings={newListings}
       />
 
@@ -96,7 +90,7 @@ export default function CategoryGroupedPage({
       />
 
       <ScrollRow
-        title="Luxury"
+        title="Top Picks"
         subtitle="Premium experiences worth every naira"
         icon={<Gem size={20} className="text-[#D62839]" />}
         listings={luxury}

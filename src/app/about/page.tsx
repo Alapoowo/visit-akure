@@ -67,20 +67,6 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Stats */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {[
-            { number: '100+', label: 'Verified Listings' },
-            { number: '8', label: 'Categories' },
-            { number: '1,000+', label: 'WhatsApp Connections' },
-          ].map(stat => (
-            <div key={stat.label} className="bg-gray-50 rounded-2xl p-6 text-center border border-gray-100">
-              <div className="text-3xl font-extrabold text-[#005F56] mb-1">{stat.number}</div>
-              <div className="text-sm text-gray-500 font-semibold">{stat.label}</div>
-            </div>
-          ))}
-        </section>
-
         {/* Contact */}
         <section>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Contact Us</h2>

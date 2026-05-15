@@ -36,13 +36,14 @@ export default function CategoryPageLayout({
         {/* Decorative accent */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-[#D62839]/10 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-        <div className="max-w-[1280px] mx-auto px-6 py-12 relative z-10">
-          <div className="flex items-center gap-2 text-white/60 text-sm mb-3">
-            <Icon size={16} className={iconColor} />
-            <span>{listings.length} {category} available</span>
+        <div className="max-w-[1280px] mx-auto px-6 py-10 relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Icon size={20} className={iconColor} />
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">{title}</h1>
-          <p className="text-white/60 text-base">{subtitle}</p>
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{title}</h1>
+            <p className="text-white/60 text-sm mt-0.5">{subtitle}</p>
+          </div>
         </div>
       </div>
 

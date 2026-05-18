@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Visit Akure <onboarding@resend.dev>',
+        from: process.env.RESEND_FROM_EMAIL ?? 'Visit Akure <onboarding@resend.dev>',
         to: [process.env.ADMIN_EMAIL ?? 'admin@visitakure.com'],
         subject: `New Listing Submission: ${body.businessName}`,
         html: `

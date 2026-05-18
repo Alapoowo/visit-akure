@@ -43,10 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Server-rendered splash — appears before any JS, CSS-animated away after 1.6s */}
         <div id="va-splash">
           <div style={{ position: 'relative', width: 300, height: 56, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 26, background: '#004840', borderRadius: 999 }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 26, background: '#F4C300', borderRadius: 999 }} />
             <div style={{ position: 'absolute', bottom: 4, left: 0, right: 0, display: 'flex', gap: 14, padding: '0 20px' }}>
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ flex: 1, height: 2, background: 'rgba(255,255,255,0.15)', borderRadius: 999 }} />
+                <div key={i} style={{ flex: 1, height: 2, background: 'rgba(0,72,64,0.3)', borderRadius: 999 }} />
               ))}
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               style={{ position: 'absolute', bottom: 8, left: 0, height: 36, objectFit: 'contain', animation: 'carDriveSplash 2.4s ease-in-out forwards' }}
             />
           </div>
-          <p style={{ marginTop: 20, color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase' }}>Visit Akure</p>
+          <p style={{ marginTop: 20, color: '#F4C300', fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase' }}>Visit Akure</p>
         </div>
         <WishlistProvider>
           <ToastProvider>

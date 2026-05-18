@@ -23,7 +23,6 @@ export default function CategoryPageLayout({
   category,
   listings,
   icon: Icon,
-  iconColor = 'text-[#F4C300]',
   showSidebar = true,
 }: CategoryPageLayoutProps) {
   return (
@@ -33,12 +32,11 @@ export default function CategoryPageLayout({
         <div className="absolute right-8 top-1/2 -translate-y-1/2 text-[120px] opacity-[0.07] select-none pointer-events-none">
           {emoji}
         </div>
-        {/* Decorative accent */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-[#D62839]/10 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         <div className="max-w-[1280px] mx-auto px-6 py-10 relative z-10 flex items-center gap-3">
           <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Icon size={20} className={iconColor} />
+            <Icon size={20} className="text-[#F4C300]" />
           </div>
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{title}</h1>

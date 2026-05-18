@@ -345,7 +345,7 @@ export default function OnboardPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone (optional)</label>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone *</label>
                       <div className="relative">
                         <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
@@ -359,7 +359,7 @@ export default function OnboardPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email (optional)</label>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email *</label>
                       <div className="relative">
                         <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
@@ -460,7 +460,7 @@ export default function OnboardPage() {
 
             <button
               onClick={() => setStep(2)}
-              disabled={!form.businessName || !form.category || !form.address || !form.description || !form.whatsapp || !form.submitterName}
+              disabled={!form.businessName || !form.category || !form.address || !form.description || !form.whatsapp || !form.phone || !form.email || !form.submitterName}
               className="w-full mt-6 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue to Features <ArrowRight size={16} />
@@ -730,9 +730,9 @@ export default function OnboardPage() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3.5 text-sm sm:text-base bg-[#005F56] text-white font-bold rounded-xl hover:bg-[#004840] transition-all disabled:opacity-60"
               >
-                {submitting ? 'Submitting…' : 'Submit for Review'} <ArrowRight size={16} />
+                {submitting ? 'Submitting…' : 'Submit for Review'} <ArrowRight size={14} />
               </button>
             </div>
           </div>

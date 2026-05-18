@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { ArrowRight, TrendingUp, Gem } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import SearchBar from '@/components/ui/SearchBar'
 import ListingCard from '@/components/listings/ListingCard'
-import { getHomepageSection, activeListings } from '@/data/listings'
+import { getHomepageSection } from '@/data/listings'
 import { CATEGORIES } from '@/config/categories'
 
 export default function HomePage() {
@@ -58,13 +58,10 @@ export default function HomePage() {
       <section className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-2xl font-extrabold text-gray-900 flex items-center gap-2">
-              <TrendingUp size={20} className="text-[#D62839]" />
-              Featured Businesses
-            </h2>
+            <h2 className="text-base sm:text-xl font-extrabold text-gray-900">Featured Businesses</h2>
             <p className="text-sm text-gray-500 mt-1">Highest-rated listings across Akure</p>
           </div>
-          <Link href="/categories" className="flex items-center gap-1 text-sm font-bold text-[#D62839] hover:underline">
+          <Link href="/featured" className="flex items-center gap-1 text-sm font-bold text-[#D62839] hover:underline">
             See all <ArrowRight size={14} />
           </Link>
         </div>
@@ -77,13 +74,10 @@ export default function HomePage() {
       <section className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-2xl font-extrabold text-gray-900 flex items-center gap-2">
-              <Gem size={20} className="text-[#D62839]" />
-              Top Experiences
-            </h2>
+            <h2 className="text-base sm:text-xl font-extrabold text-gray-900">Top Experiences</h2>
             <p className="text-sm text-gray-500 mt-1">Premium experiences worth every naira</p>
           </div>
-          <Link href="/categories" className="flex items-center gap-1 text-sm font-bold text-[#D62839] hover:underline">
+          <Link href="/top-experiences" className="flex items-center gap-1 text-sm font-bold text-[#D62839] hover:underline">
             See all <ArrowRight size={14} />
           </Link>
         </div>

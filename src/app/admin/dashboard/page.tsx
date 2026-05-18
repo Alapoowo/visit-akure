@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import { getSiteSettings, saveSiteSettings } from '@/lib/siteSettings'
 
 // ─── Sidebar config ─────────────────────────────────────────────────────────
 const menuGroups = [
@@ -670,12 +671,12 @@ function PlansView() {
 }
 
 function SettingsView() {
-  const [siteName, setSiteName] = useState('Visit Akure')
-  const [adminEmail, setAdminEmail] = useState('admin@visitakure.com')
-  const [mobileFooter, setMobileFooter] = useState(true)
+  const [mobileNavEnabled, setMobileNavEnabled] = useState(true)
   const [maintenanceMode, setMaintenanceMode] = useState(false)
-  const [newListingAlert, setNewListingAlert] = useState(true)
+  const [listingAlerts, setListingAlerts] = useState(true)
+  const [settingsLoading, setSettingsLoading] = useState(true)
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -683,9 +684,25 @@ function SettingsView() {
   const [credMsg, setCredMsg] = useState('')
   const [credSaving, setCredSaving] = useState(false)
 
-  const handleSave = () => {
+  useEffect(() => {
+    getSiteSettings().then(s => {
+      setMobileNavEnabled(s.mobile_nav_enabled)
+      setMaintenanceMode(s.maintenance_mode)
+      setListingAlerts(s.listing_alerts_enabled)
+      setSettingsLoading(false)
+    })
+  }, [])
+
+  const handleSave = async () => {
+    setSaveError('')
+    const { error } = await saveSiteSettings({
+      mobile_nav_enabled: mobileNavEnabled,
+      maintenance_mode: maintenanceMode,
+      listing_alerts_enabled: listingAlerts,
+    })
+    if (error) { setSaveError(error); return }
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setTimeout(() => setSaved(false), 2500)
   }
 
   const handleCredentialUpdate = async () => {
@@ -783,59 +800,46 @@ function SettingsView() {
         <div className="px-6 py-4 border-b border-gray-100">
           <h3 className="font-extrabold text-gray-900">General Settings</h3>
         </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1.5">Site Name</label>
-            <input
-              value={siteName}
-              onChange={e => setSiteName(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1.5">Admin Email</label>
-            <input
-              type="email"
-              value={adminEmail}
-              onChange={e => setAdminEmail(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#005F56] transition-colors"
-            />
-            <p className="text-xs text-gray-400 mt-1">New listing notifications are sent here.</p>
-          </div>
+        <div className="p-6">
+          <p className="text-sm text-gray-500">Admin email for notifications is configured via the <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">ADMIN_EMAIL</code> environment variable on your hosting platform.</p>
         </div>
       </div>
 
       {/* Toggles */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-extrabold text-gray-900">Feature Toggles</h3>
+          {settingsLoading && <span className="text-xs text-gray-400">Loading…</span>}
         </div>
         <div className="p-6 space-y-5">
           {[
             {
-              id: 'mobileFooter', label: 'Mobile Bottom Navigation',
+              id: 'mobileNav', label: 'Mobile Bottom Navigation',
               desc: 'Show the bottom tab bar on mobile devices',
-              value: mobileFooter, set: setMobileFooter
+              value: mobileNavEnabled, set: setMobileNavEnabled,
             },
             {
               id: 'maintenance', label: 'Maintenance Mode',
               desc: 'Show a maintenance page to all public visitors',
-              value: maintenanceMode, set: setMaintenanceMode
+              value: maintenanceMode, set: setMaintenanceMode,
+              warn: maintenanceMode,
             },
             {
-              id: 'newListingAlert', label: 'New Listing Alerts',
+              id: 'listingAlerts', label: 'New Listing Alerts',
               desc: 'Email admin when a new listing is submitted',
-              value: newListingAlert, set: setNewListingAlert
+              value: listingAlerts, set: setListingAlerts,
             },
-          ].map(({ id, label, desc, value, set }) => (
-            <div key={id} className="flex items-center justify-between gap-4">
+          ].map(({ id, label, desc, value, set, warn }) => (
+            <div key={id} className={cn('flex items-center justify-between gap-4 rounded-xl p-3 -mx-3', warn ? 'bg-red-50 border border-red-100' : '')}>
               <div>
                 <div className="text-sm font-bold text-gray-800">{label}</div>
                 <div className="text-xs text-gray-400 mt-0.5">{desc}</div>
+                {warn && <div className="text-xs text-red-500 font-semibold mt-1">⚠ Site is currently in maintenance mode</div>}
               </div>
               <button
                 onClick={() => set((v: boolean) => !v)}
-                className={cn('flex-shrink-0 transition-colors', value ? 'text-[#005F56]' : 'text-gray-300')}
+                disabled={settingsLoading}
+                className={cn('flex-shrink-0 transition-colors', value ? 'text-[#005F56]' : 'text-gray-300', settingsLoading && 'opacity-40 cursor-not-allowed')}
                 aria-label={`Toggle ${label}`}
               >
                 {value ? <ToggleRight size={36} /> : <ToggleLeft size={36} />}
@@ -864,15 +868,21 @@ function SettingsView() {
         </div>
       </div>
 
+      {saveError && (
+        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-semibold">
+          {saveError}
+        </div>
+      )}
       <button
         onClick={handleSave}
+        disabled={settingsLoading}
         className={cn(
-          'flex items-center gap-2 px-8 py-3 font-bold rounded-2xl text-sm transition-all',
+          'flex items-center gap-2 px-8 py-3 font-bold rounded-2xl text-sm transition-all disabled:opacity-50',
           saved ? 'bg-green-500 text-white' : 'bg-[#005F56] text-white hover:bg-[#004a44]'
         )}
       >
         <Save size={15} />
-        {saved ? 'Saved!' : 'Save Settings'}
+        {saved ? '✓ Saved!' : 'Save Settings'}
       </button>
     </div>
   )

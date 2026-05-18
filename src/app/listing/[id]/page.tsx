@@ -9,6 +9,7 @@ import { getCategoryConfig, hasPricing } from '@/config/categories'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import ListingActions from '@/components/listing/ListingActions'
 import WhatsAppCTA from '@/components/listing/WhatsAppCTA'
+import WhatsAppInlineButton from '@/components/listing/WhatsAppInlineButton'
 
 const amenityIcons: Record<string, React.ReactNode> = {
   'Air Conditioning': <Wind size={16} />,
@@ -95,12 +96,15 @@ export default async function ListingDetailPage({ params }: Props) {
             </div>
             {showPrice && (
               <div className="mt-3">
-                <span className="text-xl sm:text-3xl font-extrabold text-[#005F56]">
-                  {listing.priceMax
-                    ? `${formatPrice(listing.price)} – ${formatPrice(listing.priceMax)}`
-                    : formatPrice(listing.price)}
-                </span>
-                <span className="text-sm text-gray-400 ml-2">{listing.priceUnit}</span>
+                <div className="flex flex-wrap items-baseline gap-2 mb-3">
+                  <span className="text-xl sm:text-3xl font-extrabold text-[#D62839]">
+                    {listing.priceMax
+                      ? `${formatPrice(listing.price)} – ${formatPrice(listing.priceMax)}`
+                      : formatPrice(listing.price)}
+                  </span>
+                  <span className="text-sm text-gray-400">{listing.priceUnit}</span>
+                </div>
+                <WhatsAppInlineButton listing={listing} />
               </div>
             )}
           </div>

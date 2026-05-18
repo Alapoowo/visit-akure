@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSiteSettings } from '@/lib/siteSettings'
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -35,9 +36,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Send email notification via Resend (only when API key is set)
+  // Send email notification via Resend (only when API key is set AND alerts enabled)
+  const settings = await getSiteSettings()
   const resendKey = process.env.RESEND_API_KEY
-  if (resendKey && !resendKey.startsWith('re_your_')) {
+  if (settings.listing_alerts_enabled && resendKey && !resendKey.startsWith('re_your_')) {
     const planLabel = body.plan === 'featured' ? 'Featured (₦20,000/mo)' : body.plan === 'verified' ? 'Verified (₦5,000)' : 'Basic (Free)'
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
